@@ -10,18 +10,30 @@ const { getPageStatusesStream } = require('../check');
 
 let clock;
 const RFC822Regexp = /(Sun|Fri|Mon|Sat|Thu|Tue|Wed)\,\s[0-9]{2}\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s[0-9]{4}\s[0-9]{2}\:[0-9]{2}\:[0-9]{2}\s[+-][0-9]{4}/;
+const OneMinute = "01:00";
 
 const constructResponse = (status) => {
     const response = new Response();
     response.ok = true;
+
+    const createIncident = (status) => {
+        clock.tick(OneMinute);
+        return {
+            date: new Date(),
+            status,
+        };
+    }
+
+    const createItems = (status) => {
+        return [{
+            incidents: (Array.isArray(status) ? status : [status]).map(createIncident)
+        }];
+    };
+
     const data = createStatusPage({
-        items: [{
-            incidents: [{
-                date: new Date(),
-                status,
-            }]
-        }]
+        items: createItems(status)
     });
+
     response.text = jest.fn().mockReturnValue(Promise.resolve(data));
     return response;
 }
@@ -119,6 +131,7 @@ describe('for current date', () => {
                 ]));
             });
         });    
+
         describe('Incidents with status == Resolved', () => {
             test('should return incidents with status "Resolved"', async () => {
                 const statusName = 'Resolved';
@@ -141,6 +154,45 @@ describe('for current date', () => {
                     message: "No incidents found!",
                 }]);
             });
-        });    
+        });
+        
+        describe('Incidents with mixed statuses', () => {
+            test('should return incidents only with status != "Resolved"', async () => {
+                fetch.mockReturnValueOnce(Promise.resolve(constructResponse(['Investigating', 'Monitoring', 'Resolved'])));
+                fetch.mockReturnValueOnce(Promise.resolve(constructResponse(['Investigating', 'Update'])));
+                fetch.mockReturnValueOnce(Promise.resolve(constructResponse(['Investigating', 'Update', 'Identified'])));
+
+                const results = await getPageStatusesStream([
+                    'http://some.service.io/status_page/rss',
+                    'http://some2.service.io/status_page/rss',
+                    'http://some3.service.io/status_page/rss'
+                ]).pipe(
+                    take(3),
+                    toArray()
+                ).toPromise();
+
+                expect(results).toHaveLength(2);
+                expect(results).toEqual([
+                    expect.objectContaining({
+                        lastIncident: expect.objectContaining({
+                            channelTitle: expect.any(String),
+                            pubDate: expect.stringMatching(RFC822Regexp),
+                            status: 'Update',
+                            title: expect.any(String),
+                        }),
+                        service: expect.any(String),
+                    }),
+                    expect.objectContaining({
+                        lastIncident: expect.objectContaining({
+                            channelTitle: expect.any(String),
+                            pubDate: expect.stringMatching(RFC822Regexp),
+                            status: 'Identified',
+                            title: expect.any(String),
+                        }),
+                        service: expect.any(String),
+                    })
+                ]);
+            });
+        });  
     });
 });
