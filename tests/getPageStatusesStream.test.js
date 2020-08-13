@@ -1,18 +1,15 @@
 jest.mock('node-fetch');
-const { createStatusPage } = require('./factories/statusPage');
+const { createStatusPage, OneMinute } = require('./factories/statusPage');
 const fetch = require('node-fetch');
 const { Response } = require('node-fetch');
 const FakeTimers = require("@sinonjs/fake-timers");
 const { toArray, take } = require('rxjs/operators');
-
 const { getPageStatusesStream } = require('../check');
-
 
 let clock;
 const RFC822Regexp = /(Sun|Fri|Mon|Sat|Thu|Tue|Wed)\,\s[0-9]{2}\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s[0-9]{4}\s[0-9]{2}\:[0-9]{2}\:[0-9]{2}\s[+-][0-9]{4}/;
-const OneMinute = "01:00";
 
-const constructResponse = (status) => {
+const constructResponse = (status, countItems = 1) => {
     const response = new Response();
     response.ok = true;
 
@@ -24,14 +21,14 @@ const constructResponse = (status) => {
         };
     }
 
-    const createItems = (status) => {
-        return [{
+    const createItem = (status) => {
+        return {
             incidents: (Array.isArray(status) ? status : [status]).map(createIncident)
-        }];
+        };
     };
 
     const data = createStatusPage({
-        items: createItems(status)
+        items: new Array(countItems).fill().map(() => createItem(status)),
     });
 
     response.text = jest.fn().mockReturnValue(Promise.resolve(data));

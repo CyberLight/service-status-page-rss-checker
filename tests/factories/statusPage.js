@@ -2,6 +2,7 @@ const faker = require('faker');
 const moment = require('moment');
 const RFC822 = 'ddd, DD MMM YYYY HH:mm:ss ZZ';
 const ShortDateFormat = 'MMM DD, HH:mm UTC';
+const OneMinute = '01:00';
 
 function escapeHtml(unsafe) {
     return unsafe
@@ -40,7 +41,7 @@ function createItem({
     </item>`
 }
 
-function createStatusPage(data) {
+function createStatusPage(data, clock = { tick() {} }) {
     const { channel = {}, items = [] } = data;
 return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -49,11 +50,15 @@ return `<?xml version="1.0" encoding="UTF-8"?>
     <link>${channel.url || faker.internet.url()}</link>
     <description>Statuspage</description>
     <pubDate>${moment(channel.pubDate || new Date()).format(RFC822)}</pubDate>
-    ${items.map(createItem).join('\n')}
+    ${items.map((item) => { 
+        clock.tick(OneMinute);
+        return createItem(item);
+    }).join('\n')}
    </channel>
 </rss>`;
 }
 
 module.exports = {
-    createStatusPage
+    createStatusPage,
+    OneMinute
 }
