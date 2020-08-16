@@ -1,8 +1,6 @@
 global.AbortController = require('abort-controller');
 global.fetch = require('node-fetch');
 const jsdom = require("jsdom");
-const path = require('path');
-const fs = require('fs');
 const { of, forkJoin, zip } = require('rxjs');
 const { fromFetch } = require('rxjs/fetch');
 const { 
@@ -140,36 +138,3 @@ module.exports = {
     getPageStatusesStream,
     withDefaultSubscription
 };
-
-function validURL(str) {
-    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    return !!pattern.test(str);
-}
-
-function isAllUrlsValid(urls) {
-    return urls.every(s => validURL(s));
-}
-
-if (require.main === module) {
-    let urls = process.argv.slice(2);
-    if (urls.length === 0) throw new Error('Need one or more parameters');
-    let isAllUrls = isAllUrlsValid(urls);
-    if (!isAllUrls) {
-        const pathToJsonFile = urls[0];
-        const { ext } = path.parse(pathToJsonFile);
-        if (ext !== '.json') throw new Error('Need json file with list of urls');
-        let rawdata = fs.readFileSync(pathToJsonFile);
-        let jsonUrls = JSON.parse(rawdata);
-        if (!Array.isArray(jsonUrls)) throw new Error('Json file does not contains array');
-        isAllUrls = isAllUrlsValid(jsonUrls);
-        if (!isAllUrls) throw new Error('Not all values in array are urls!');  
-        urls = jsonUrls;
-    }   
-    console.log('[i] Check service page statuses:', urls);
-    withDefaultSubscription(getPageStatusesStream(urls));
-}
