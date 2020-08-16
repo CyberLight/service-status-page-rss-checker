@@ -5,17 +5,17 @@ This library can check the status page of any service that supports the **Status
 ## Installation
 
 ```bash
-npm i -D sspchecker
+npm i -D @cyberlight/sspchecker
 
 # or
 
-npm i sspchecker
+npm i @cyberlight/sspchecker
 ```
 
 ## Usage
 
 ```JavaScript
-const { getPageStatusesStream, withDefaultSubscription } = require('sspchecker');
+const { getPageStatusesStream, withDefaultSubscription } = require('@cyberlight/sspchecker');
 
 withDefaultSubscription(getPageStatusesStream([ 'https://status.service.name/path/to.rss', ... ]));
 ```
