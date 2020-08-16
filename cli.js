@@ -6,7 +6,6 @@ const chalk = require('chalk');
 const error = chalk.bold.red;
 const warning = chalk.keyword('orange');
 const { withDefaultSubscription, getPageStatusesStream } = require('./check');
-const { runCLI } = require('jest');
 
 function validURL(str) {
     var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
@@ -65,7 +64,7 @@ function startCli() {
     withDefaultSubscription(getPageStatusesStream(urls));
 }
 
-module.exports = runCLI;
+module.exports = startCli;
 
 if (require.main === module) {
     startCli();
