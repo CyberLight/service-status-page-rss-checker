@@ -1,4 +1,4 @@
-# ssprsschecker (Service Status Page RSS Checker)
+# sspchecker (Service Status Page RSS Checker)
 
 This library can check the status page of any service that supports the **Statuspage** like interface using RSS format (except Atom format).
 
