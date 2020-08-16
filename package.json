@@ -1,6 +1,6 @@
 {
   "name": "sspchecker",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "check.js",
   "repository": "git://github.com/CyberLight/service-status-page-rss-checker.git",
