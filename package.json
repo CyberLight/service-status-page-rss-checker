@@ -13,8 +13,8 @@
     "sspchecker-cli": "cli.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "cyberlight",
+  "license": "MIT",
   "jest": {
     "testMatch": [
       "**/tests/**/*.(spec|test).[tj]s?(x)"
