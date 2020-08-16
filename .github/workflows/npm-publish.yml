@@ -41,9 +41,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
-          scope: '@CyberLight'
       - run: npm ci
-      - run: echo @CyberLight:registry=https://npm.pkg.github.com/ >> .npmrc
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
