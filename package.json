@@ -1,24 +1,32 @@
 {
-  "name": "ssprsschecker",
+  "name": "sspchecker",
   "version": "1.0.0",
   "description": "",
   "main": "check.js",
   "scripts": {
     "test": "jest",
-    "start": "node check.js"
+    "start": "node check.js",
+    "patch-release": "npm version patch && npm publish && git push --follow-tags",
+    "publish": "npm publish --access=public"
+  },
+  "bin": {
+    "sspchecker-cli": "cli.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "jest": {
-    "testMatch": ["**/tests/**/*.(spec|test).[tj]s?(x)"]
+    "testMatch": [
+      "**/tests/**/*.(spec|test).[tj]s?(x)"
+    ]
   },
   "dependencies": {
     "abort-controller": "^3.0.0",
     "chalk": "^4.1.0",
     "jsdom": "^16.3.0",
     "node-fetch": "^2.6.0",
-    "rxjs": "^6.6.2"
+    "rxjs": "^6.6.2",
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^6.0.1",
